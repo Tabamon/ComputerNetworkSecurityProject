@@ -1,5 +1,5 @@
 import re
-from passlib.hash import bcrypt
+import hashlib
 
 def passwordChecker(password):
     #check the password length
@@ -30,20 +30,18 @@ def passwordChecker(password):
         return True
 
 def passHash(password):
-    hashed_password = bcrypt.hash(password)
+    hashed_password = hashlib.sha512(password.encode())
     return hashed_password
 
-def passwordCheck(userInput, password):
-    if (bcrypt.verify(userInput, password) == True): 
-        print("login sucsess")
-        return True
-    else:
-        print("login failed")
-        return False
-
 if __name__ == '__main__':
+    user = input("Enter a user name")
     password = input("Enter your password.")
     if passwordChecker(password) is True:
         print("That is a strong password. ")
+        passHash(password)
     else:
         print("That is a weak password.")
+
+    shadow = open("shadow.txt", "a")
+    shadow.write(user + ":" + passHash(password).hexdigest() + "::0:90:7:::")
+
