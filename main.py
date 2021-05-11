@@ -1,5 +1,6 @@
 import re
 import hashlib
+import uuid
 
 def passwordChecker(password):
     #check the password length
@@ -42,6 +43,10 @@ if __name__ == '__main__':
     else:
         print("That is a weak password.")
 
+    salt = uuid.uuid4().hex
+    hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
+
     shadow = open("shadow.txt", "a")
-    shadow.write(user + ":" + passHash(password).hexdigest() + "::0:90:7:::")
+    #shadow.write(user + ":" + passHash(password).hexdigest() + "::0:90:7:::")
+    shadow.write(user + ":" + hashed_password + "::0:90:7:::"+salt)
 
