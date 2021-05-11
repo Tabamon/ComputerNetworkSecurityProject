@@ -29,6 +29,17 @@ def passwordChecker(password):
     else:
         return True
 
+def isBanned(password):
+    bannedList = open("commonPasswords.txt","r")
+    while True:
+        line = bannedList.readline()
+        if not line:
+            break
+        if password == line:
+            return False
+    return True
+    
+
 def passHash(password):
     hashed_password = hashlib.sha512(password.encode())
     return hashed_password
@@ -44,4 +55,3 @@ if __name__ == '__main__':
 
     shadow = open("shadow.txt", "a")
     shadow.write(user + ":" + passHash(password).hexdigest() + "::0:90:7:::")
-
