@@ -35,18 +35,19 @@ def passHash(password):
     return hashed_password
 
 if __name__ == '__main__':
-    user = input("Enter a user name")
-    password = input("Enter your password.")
+    user = input("Enter you user name: ")
+    password = input("Enter your password: ")
     if passwordChecker(password) is True:
-        print("That is a strong password. ")
+        print("That is a strong password.")
         passHash(password)
     else:
         print("That is a weak password.")
 
-    salt = uuid.uuid4().hex
-    hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
+    #salt = uuid.uuid4().hex
+    salt = "^AN:~fGRGX?t,/4s"
+    hashed_password = hashlib.sha512(password.encode() + salt.encode()).hexdigest()
 
-    shadow = open("shadow.txt", "a")
+    with open("shadow.txt", "a") as shadow:
     #shadow.write(user + ":" + passHash(password).hexdigest() + "::0:90:7:::")
-    shadow.write(user + ":" + hashed_password + "::0:90:7:::"+salt)
+        shadow.write(user + ":" + hashed_password + "::0:90:7:::"+salt + "\n")
 
