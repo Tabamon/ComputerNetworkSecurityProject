@@ -2,6 +2,7 @@ import re
 import hashlib
 import uuid #Moving to replace with bcrypt
 import bcrypt
+from collections import deque
 
 def passwordChecker(password):
     #check the password length
@@ -60,14 +61,24 @@ def previousPasswordExists(hashed_password):
 
 def addPassword(hashed_password, salt):
     list = open("previous_password.txt").readlines()
-    
-    if len(list) < 8:
-        entry = user + ":" + hashed_password + "::0:90:7:::" + saltByteToString(salt) + "\n"
-        with open("previous_password.txt", "a") as prev:
-            prev.write(entry)
 
-        with open("shadow.txt", "a") as shadow:
+    entry = user + ":" + hashed_password + "::0:90:7:::" + saltByteToString(salt)
+
+    if len(list) < 8:
+        with open("previous_password.txt", "a") as prev:
+            prev.write(entry + '\n')
+
+    else:
+        dList = deque(list)
+        dList.pop()
+        dList.appendleft(entry)
+        with open("previous_password.txt", "w") as prev:
+            for queItem in dList:
+                prev.write(queItem + '\n')
+
+    with open("shadow.txt", "w") as shadow:
             shadow.write(entry)
+
 
 if __name__ == '__main__':
     user = input("Enter you user name: ")
@@ -77,9 +88,4 @@ if __name__ == '__main__':
         processPassword(password)
     else:
         print("That is a weak password.")
-
-    
-
-    
-        
 
