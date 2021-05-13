@@ -1,6 +1,7 @@
 import re
 import hashlib
-import uuid
+import uuid #Moving to replace with bcrypt
+import bcrypt
 
 def passwordChecker(password):
     #check the password length
@@ -30,23 +31,55 @@ def passwordChecker(password):
     else:
         return True
 
-def passHash(password):
-    hashed_password = hashlib.sha512(password.encode())
-    return hashed_password
+def generateSalt():
+    salt = bcrypt.gensalt()
+    return salt
+
+def saltByteToString(salt):
+    stringSalt = salt.decode("utf-8")
+    return stringSalt
+
+def processPassword(password):
+    salt = generateSalt()
+
+    hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
+
+    if (previousPasswordExists(hashed_password)):
+        print("Could not add to password log.")
+    else:
+        addPassword(hashed_password, salt)
+        print("Added to file")
+
+def previousPasswordExists(hashed_password):
+    list = open("previous_password.txt").readlines()
+
+    if hashed_password in list:
+        return True
+    else:
+        return False
+
+def addPassword(hashed_password, salt):
+    list = open("previous_password.txt").readlines()
+    
+    if len(list) < 8:
+        entry = user + ":" + hashed_password + "::0:90:7:::" + saltByteToString(salt) + "\n"
+        with open("previous_password.txt", "a") as prev:
+            prev.write(entry)
+
+        with open("shadow.txt", "a") as shadow:
+            shadow.write(entry)
 
 if __name__ == '__main__':
-    user = input("Enter a user name")
-    password = input("Enter your password.")
+    user = input("Enter you user name: ")
+    password = input("Enter your password: ")
     if passwordChecker(password) is True:
-        print("That is a strong password. ")
-        passHash(password)
+        print("That is a strong password.")
+        processPassword(password)
     else:
         print("That is a weak password.")
 
-    salt = uuid.uuid4().hex
-    hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
+    
 
-    shadow = open("shadow.txt", "a")
-    #shadow.write(user + ":" + passHash(password).hexdigest() + "::0:90:7:::")
-    shadow.write(user + ":" + hashed_password + "::0:90:7:::"+salt)
+    
+        
 
